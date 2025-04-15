@@ -1,11 +1,22 @@
 import string
 import random
 import datetime
+import os
 from cryptography.fernet import Fernet
 
-
+#pseudo-random password
 def pass_gen(size, chars=string.ascii_letters + string.digits + string.punctuation):
         return ''.join(random.choice(chars) for _ in range(size))
+
+#function that writes key one time
+def load_create_key():
+    if os.path.exists("key.key"):
+        with open("key.key", "rb") as key_file:
+            return key_file.read()
+    else:
+        with open("key.key", "wb") as key_file:
+            key_file.write(key)
+        return key
 
 
 def main():
@@ -15,6 +26,7 @@ def main():
     save_choice = "n"
     service_name = ""
 
+#pass generating loop
     while True: 
         try:   
             print("Hey, I can generate password. Enter password length (must be at least 5 characters):")
@@ -27,7 +39,7 @@ def main():
         except ValueError:
             print("Please enter a valid number.")
 
-
+#entering service name for password
     try:
         print("Which service or platform is this password for? (Discord, Gmail etc.):")
         service_name = input()
@@ -35,23 +47,26 @@ def main():
     except ValueError:
         print("Invalid service name.")
     
-
+#encrypt and save loop
     while True:
+
         try:
             print("Do you want to encrypt and save your password? y/n")
             save_choice = input()
             if save_choice == "n":
                 return
             elif save_choice == "y":
-                key = Fernet.generate_key()
-                cipher = Fernet(key)
-                encrypted_password = cipher.encrypt(password.encode())
+                key = load_create_key()#creating or using existing key
+                cipher = Fernet(key)#loading key
+                encrypted_password = cipher.encrypt(password.encode())#encrypting password
 
                 with open("my_passwords.txt", "a") as file:
                     file.write(f"{current_time} | {service_name} | {encrypted_password}\n")
+
                 break
             else:
                 print("Sorry, wrong answer.")
+
         except ValueError:
             print("Command not recognized.")
 

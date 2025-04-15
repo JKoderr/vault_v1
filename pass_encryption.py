@@ -14,7 +14,8 @@ def load_create_key():
         with open("key.key", "rb") as key_file:
             return key_file.read()
     else:
-        with open("key.key", "wb") as key_file:
+        key = Fernet.generate_key()
+        with open("key.key", "wb") as key_file:  
             key_file.write(key)
         return key
 
@@ -49,15 +50,13 @@ def main():
     
 #encrypt and save loop
     while True:
-
-        try:
             print("Do you want to encrypt and save your password? y/n")
             save_choice = input()
             if save_choice == "n":
                 return
             elif save_choice == "y":
                 key = load_create_key()#creating or using existing key
-                cipher = Fernet(key)#loading key
+                cipher = Fernet(key)
                 encrypted_password = cipher.encrypt(password.encode())#encrypting password
 
                 with open("my_passwords.txt", "a") as file:
@@ -66,9 +65,6 @@ def main():
                 break
             else:
                 print("Sorry, wrong answer.")
-
-        except ValueError:
-            print("Command not recognized.")
 
 if __name__ == "__main__":
     main()
